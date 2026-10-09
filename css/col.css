@@ -1,0 +1,45 @@
+.topHeader {
+    display: flex;
+    flex-direction: column; /* ستون می‌شه */
+    align-items: center;    /* وسط صفحه */
+}
+
+.topLogo {
+    width: 100%;           /* لوگو تمام عرض */
+    margin: 10px auto;    /* لوگو وسط */
+  /* فاصله پایین برای متن */
+}
+
+.topLogo img {
+    width: 100%;           /* تصویر لوگو هم تمام عرض */
+    height: auto;
+}
+
+.leftHeader {
+    float: none;           /* لغو float */
+    width: 100%;           /* بخش متن هم full width */
+    text-align: center;    /* متن وسط */
+    padding: 0 10px;
+    margin-bottom: 10px;
+}
+
+/* اگر میخوای فاصله متن با لوگو کمی بیشتر باشه */
+.leftHeader div {
+    display: block;
+    margin-top: 5px;
+}
+.insurance-boxes .box {
+    flex: 1 1 100%; /* یک ستون */
+}
+.hero-content h1 {
+    font-size: 17px;
+}
+.hero-content p {
+    font-size: 10px;
+}
+.hero-btn {
+    font-size: 10px;
+}
+.blaze-pagination {
+    display: none;
+}

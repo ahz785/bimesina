@@ -1,0 +1,588 @@
+/* ============================================================
+   متغیرهای رنگ، شیشه و گردی گوشه‌ها ــ همه چی از اینجا کنترل میشه
+   ============================================================ */
+:root{
+    --main-blue: #142650;
+    --light-blue: #29bcbd;
+    --glass-bg: rgba(255,255,255,0.07);
+    --glass-bg-hover: rgba(255,255,255,0.16);
+    --glass-border: 1px solid rgba(255,255,255,0.18);
+    --glass-blur: blur(14px) saturate(160%);
+    --glass-shadow: 0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+    --radius: 16px;          /* گوشه‌های کارت، ناوبار، فوتر، منو */
+    --radius-pill: 999px;    /* دکمه‌های قرصی */
+}
+
+/* لینک‌ها: تو کل سایت خط زیر نداشته باشن (جای دیگه‌ای لازم نیست دوباره بنویسی) */
+a{
+    text-decoration: none !important;
+}
+
+/* ============================================================
+   فونت
+   ============================================================ */
+
+/* فونت اصلی سایت */
+@font-face {
+    font-family: Estedad;
+    src: url("fonts/Estedad.ttf");
+    font-display: swap;
+}
+
+/* ============================================================
+   تنظیمات پایه
+   ============================================================ */
+
+/* همه المنت‌ها: padding و border داخل عرض حساب بشن */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+/* اسکرول نرم برای لینک‌های داخل صفحه */
+html {
+    scroll-behavior: smooth;
+}
+
+/* انیمیشن لرزش آیکون موبایل */
+@keyframes vibratingPhone {
+    0% { transform: rotate(0deg); }
+    20% { transform: rotate(10deg); }
+    40% { transform: rotate(-10deg); }
+    60% { transform: rotate(10deg); }
+    80% { transform: rotate(-10deg); }
+    100% { transform: rotate(0deg); }
+}
+
+/* ============================================================
+   سطوح شیشه‌ای مشترک
+   هر المنتی که باید شیشه‌ای باشه اسمش رو اینجا اضافه کن
+   ============================================================ */
+#mainNav,
+.siteHeader,
+.insBoxItem,
+.footerBackground,
+.backToTopBtn,
+.blaze-prev,
+.blaze-next {
+    background: var(--glass-bg);
+    border: var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    -webkit-backdrop-filter: var(--glass-blur); /* برای Safari (ملکه) */
+    backdrop-filter: var(--glass-blur);
+}
+
+/* ============================================================
+   بدنه صفحه
+   ============================================================ */
+
+/* بک‌گراند تیره + هاله‌های رنگی (شیشه به اینا نیاز داره تا بلور بشه) */
+.bodyProp {
+    background-color: #0a1224;
+    background-image:
+        radial-gradient(circle at 15% 15%, rgba(41,188,189,0.35), transparent 40%),
+        radial-gradient(circle at 85% 35%, rgba(90,80,230,0.30), transparent 40%),
+        radial-gradient(circle at 40% 90%, rgba(41,188,189,0.25), transparent 45%);
+    background-attachment: fixed;
+    overflow-x: hidden;
+    font-family: Estedad, sans-serif; /* بقیه المنت‌ها از اینجا ارث می‌برن */
+}
+
+/* فونت Estedad به‌زور برای تگ‌های متنی، تا reset.css/بوت‌استرپ عوضش نکنن (آیکون‌های <i> عمداً بیرونن) */
+.bodyProp :is(h1, h2, h3, h4, h5, h6, p, a, span, li, div, label, button, input, select, textarea) {
+    font-family: Estedad, sans-serif;
+}
+
+/* ============================================================
+   هدر (لوگو + شبکه‌های اجتماعی)
+   ============================================================ */
+
+/* ردیف هدر: لوگو یه طرف، آیکون‌ها طرف دیگه */
+.topHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+/* بخش سمت چپ هدر: شعار + آیکون‌های تماس و شبکه اجتماعی */
+.leftHeader {
+    padding-right: 20px;
+    padding-left: 20px;
+    color: white;
+    font-size: 25px;
+}
+
+/* آیکون‌های هدر (تلفن، اینستاگرام، تلگرام) */
+.SocialHeaderIcon {
+    color: white;
+    vertical-align: middle;
+    font-size: 30px;
+}
+
+/* آیکون موبایل که می‌لرزه (سایزش از SocialHeaderIcon میاد) */
+.VibratingPhone {
+    display: inline-block;
+    animation: vibratingPhone 1.5s infinite;
+}
+
+/* لینک لوگو: عکس + اسم کنار هم، وسط‌چین عمودی */
+.logo {
+    padding-right: 30px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    float: right;
+}
+
+/* متن «بیمه سینا» کنار لوگو */
+.title {
+    color: white !important;
+    font-size: 25px;
+}
+
+/* هدر (لوگو + شعار + آیکون‌ها): موقع اسکرول بالای صفحه می‌مونه، شیشه‌ایه تا محتوای زیرش قاطی نشه */
+.siteHeader {
+    position: sticky;
+    top: 0;
+    z-index: 1001; /* بالاتر از ناوبار، تا ناوبار موقع مخفی شدن بره زیرش */
+    border-radius: var(--radius);
+}
+
+/* اگه include.js هدر و ناوبار رو تو یه div#header میریزه، این div نباید جعبه بسازه (وگرنه sticky کار نمیکنه) */
+div#header {
+    display: contents;
+}
+
+/* ============================================================
+   ناوبار
+   ============================================================ */
+
+/* ناوبار: شیشه (از بلاک مشترک)، گرد، و چسبیده بالای صفحه موقع اسکرول */
+#mainNav {
+    position: sticky;
+    top: var(--header-h, 0px); /* درست زیر هدر میچسبه (JS ارتفاع هدر رو تو --header-h میریزه) */
+    width: 100%;
+    z-index: 1000;
+    border-radius: var(--radius);
+    transition: background 0.22s ease, transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* موقع اسکرول پایین: ناوبار میره زیر هدر و محو میشه (کلاسش رو JS میزنه و با اسکرول بالا برمیداره) */
+#mainNav.navHidden {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* وقتی اسکرول شد: شیشه یه‌کم تیره‌تر میشه (کلاس scrolled رو JS اضافه می‌کنه) */
+#mainNav.scrolled {
+    background: rgba(20, 38, 80, 0.55);
+}
+
+/* لیست آیتم‌های ناوبار: بدون bullet */
+#mainNav > .navItems {
+    list-style: none;
+    margin: 0;
+}
+
+/* هر آیتم ناوبار: کنار هم، و مرجع موقعیت زیرمنو */
+#mainNav > .navItems > .navItem {
+    display: inline-block;
+    position: relative;
+}
+
+/* لینک هر آیتم ناوبار */
+#mainNav > .navItems > .navItem > .navLink {
+    display: block;
+    padding: 12px 23px;
+    color: #fff;
+    font-size: 16px;
+    position: relative;
+}
+
+/* خط فیروزه‌ای زیر لینک (قبل از هاور عرضش صفره) */
+#mainNav > .navItems > .navItem > .navLink::after {
+    content: "";
+    position: absolute;
+    right: 13px;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    height: 3px;
+    background: var(--light-blue);
+    transition: all 0.4s ease;
+}
+
+/* هاور: خط زیرین باز میشه */
+#mainNav > .navItems > .navItem > .navLink:hover::after {
+    width: 85%;
+}
+
+/* خط | بین آیتم‌ها */
+.menuSeparator {
+    font-size: 24px;
+    vertical-align: middle;
+    color: var(--light-blue);
+}
+
+/* دکمه «حساب کاربری» که سمت چپ ناوبار میچسبه (شیشه‌ای و گرد) */
+.lastItem {
+    background: rgba(255,255,255,0.1);
+    border: var(--glass-border);
+    float: left;
+    border-radius: var(--radius);
+    transition: background 0.3s ease-out;
+}
+
+/* هاور حساب کاربری: فیروزه‌ای شیشه‌ای */
+.navLogin:hover {
+    background: rgba(41,188,189,0.35);
+}
+
+/* آیکون کوچیک فلش کنار آیتم‌ها */
+.navArrowColor {
+    color: #fff;
+    vertical-align: middle;
+    font-size: 12px;
+}
+
+/* فلش آیتم‌هایی که زیرمنو دارن (برای چرخش لازمه inline-block باشه) */
+.navArrow {
+    display: inline-block;
+    transition: transform 0.4s ease;
+}
+
+/* هاور: فلش ۹۰ درجه میچرخه و فیروزه‌ای میشه */
+.navLink:hover .navArrow {
+    transform: rotate(-90deg);
+    color: var(--light-blue);
+}
+
+/* آیکون کنار «حساب کاربری» */
+.userIcon {
+    vertical-align: middle;
+    font-size: 15px;
+}
+
+/* ============================================================
+   زیرمنو
+   ============================================================ */
+
+/* پنل زیرمنو: اول مخفیه، با هاور میاد (تقریباً مات، چون داخل ناوبار بلوره) */
+.subMenu {
+    position: absolute;
+    color: white;
+    top: 100%;
+    right: 0;
+    background: rgba(15, 28, 60, 0.92);
+    border: var(--glass-border);
+    border-radius: var(--radius);
+    box-shadow: 0 8px 20px rgba(13, 30, 64, 0.18);
+    min-width: 200px;
+    padding: 8px 0;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    pointer-events: none;
+    visibility: hidden;
+}
+
+/* هاور روی آیتم: زیرمنو ظاهر میشه */
+.navItem:hover > .subMenu {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    visibility: visible;
+}
+
+/* لینک‌های داخل زیرمنو */
+.subMenu a {
+    display: block;
+    padding: 10px 16px;
+    color: white;
+    font-size: 15px;
+    transition: font-size 0.3s;
+}
+
+/* هاور لینک زیرمنو: بزرگ‌تر و فیروزه‌ای */
+.subMenu a:hover,
+.subMenu a:focus {
+    font-size: 18px;
+    color: var(--light-blue);
+    outline: none;
+}
+
+/* ============================================================
+   دکمه بازگشت به بالا + حلقه پیشرفت اسکرول
+   ============================================================ */
+
+/* دکمه گرد پایین صفحه (اول نامرئیه، شیشه‌اش از بلاک مشترک میاد) */
+.backToTopBtn {
+    position: fixed;
+    bottom: 100px;
+    right: 50px;
+    color: #fff;
+    padding: 12px 10px;
+    border-radius: 50%;
+    font-size: 22px;
+    transition: opacity 0.3s ease, background 0.3s;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    overflow: visible;
+}
+
+/* بعد از ۲۰۰px اسکرول، JS این کلاس رو میزنه و دکمه میاد */
+.backToTopBtn.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* هاور دکمه: فیروزه‌ای شیشه‌ای */
+.backToTopBtn:hover {
+    background: rgba(41,188,189,0.35);
+}
+
+/* حلقه SVG دور دکمه */
+.progress-ring {
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    width: calc(100% + 8px);
+    height: calc(100% + 8px);
+    transform: rotate(-90deg); /* شروع از بالا */
+    pointer-events: none;
+}
+
+/* حلقه کم‌رنگ پس‌زمینه (مسیر کامل) */
+.progress-ring-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.15);
+    stroke-width: 3;
+}
+
+/* حلقه فیروزه‌ای که با اسکرول پر میشه (JS مقدار dashoffset رو عوض میکنه) */
+.progress-ring-fill {
+    fill: none;
+    stroke: var(--light-blue);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 119.4; /* 2 * π * 19 */
+    stroke-dashoffset: 119.4;
+    transition: stroke-dashoffset 0.15s ease-out;
+}
+
+/* ============================================================
+   اسلایدر اصلی (Hero)
+   ============================================================ */
+
+/* قاب اسلایدر بزرگ بالای صفحه */
+.hero-slider {
+    width: 75%;
+    min-height: 380px;
+    position: relative;
+    margin: 10px auto;
+}
+
+/* هر اسلاید */
+.hero-slide {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+/* عکس اسلاید: کل قاب رو پر میکنه، یه‌کم تیره تا متن بخونه */
+.hero-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(70%);
+}
+
+/* متن و دکمه روی عکس */
+.hero-content {
+    position: absolute;
+    top: 50%;
+    right: 10%;
+    transform: translateY(-50%);
+    color: white;
+    text-align: right;
+}
+
+/* تیتر بزرگ اسلاید */
+.hero-content h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+/* زیرتیتر اسلاید */
+.hero-content p {
+    font-size: 22px;
+    margin-bottom: 30px;
+}
+
+/* دکمه روی اسلاید: شیشه‌ای فیروزه‌ای و قرصی */
+.hero-btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background: rgba(41,188,189,0.3);
+    border: var(--glass-border);
+    border-radius: var(--radius-pill);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    color: #fff;
+    font-size: 18px;
+    transition: background 0.3s ease;
+}
+
+/* هاور دکمه: فیروزه‌ای پررنگ‌تر */
+.hero-btn:hover {
+    background: rgba(41,188,189,0.5);
+}
+
+/* فلش‌های قبلی/بعدی اسلایدر: دکمه گرد شیشه‌ای (شیشه از بلاک مشترک میاد) */
+.blaze-prev, .blaze-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 26px;
+    line-height: 1;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+/* هاور فلش‌ها: شیشه روشن‌تر */
+.blaze-prev:hover, .blaze-next:hover {
+    background: var(--glass-bg-hover);
+}
+
+/* فلش قبلی سمت چپ */
+.blaze-prev {
+    left: 20px;
+}
+
+/* فلش بعدی سمت راست */
+.blaze-next {
+    right: 20px;
+}
+
+/* نقطه‌های پایین اسلایدر */
+.blaze-pagination {
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
+    text-align: center;
+}
+
+/* خود نقطه‌ها (دکمه‌هایی که Blaze میسازه): گرد */
+.blaze-pagination button {
+    border-radius: 50%;
+}
+
+/* ============================================================
+   اسلایدر شرکت‌های همکار
+   ============================================================ */
+
+/* قاب اسلایدر شرکت‌ها: عرض محدود و وسط‌چین */
+.my-blaze {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* مطمئن میشه اسلایدها کل ارتفاع رو بگیرن */
+.my-blaze .blaze-track,
+.my-blaze .blaze-track > * {
+    height: 100%;
+}
+
+/* لوگوی شرکت‌ها: همه تو یه جعبه هم‌اندازه (بدون کشیدگی) */
+.my-blaze .blaze-slide img {
+    width: 60%;
+    height: 80px;
+    object-fit: contain;
+    display: block;
+    border-radius: 8px;
+    margin: 0 auto;
+}
+
+/* کلاسی که تو HTML روی اسلایدهای شرکت‌ها گذاشتی: لوگوها رو سفید خالص میکنه */
+.sliderimg {
+    filter: brightness(0) invert(1);
+}
+
+/* ============================================================
+   کارت‌های انواع بیمه
+   ============================================================ */
+
+/* متن «شرکت‌هایی که به ما اعتماد کرده‌اند» */
+.orgText {
+    margin: 10px auto;
+    font-size: 24px;
+    color: white;
+    text-align: center;
+}
+
+/* کارت هر بیمه (شیشه‌ای و گرد، رنگ و بلورش از بلاک مشترک میاد) */
+.insBoxItem {
+    width: 100%;
+    font-size: 20px;
+    color: white;
+    text-align: center;
+    border-radius: var(--radius);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+}
+
+/* هاور کارت: میره بالا، سایه می‌گیره، شیشه روشن‌تر میشه */
+.insBoxItem:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    background: var(--glass-bg-hover);
+}
+
+/* آیکون بالای کارت: ۸۰×۸۰، هم‌اندازه، سفید خالص */
+.icon {
+    width: 80px;
+    height: 80px;
+    margin: 12px auto;
+    display: block;
+    padding: 6px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+}
+
+/* جمله کوچیک زیر اسم بیمه تو کارت */
+.insBoxDetails {
+    display: block;
+    font-size: 15px;
+    padding-bottom: 10px;
+}
+
+/* ============================================================
+   فوتر
+   ============================================================ */
+
+/* فوتر: گوشه‌های گرد مثل ناوبار (شیشه‌اش از بلاک مشترک میاد) */
+.footerBackground {
+    border-radius: var(--radius);
+}
+
+/* خط جداکننده بالای متن کپی‌رایت */
+.lightFooterLine {
+    border-color: rgba(255,255,255,0.2);
+}

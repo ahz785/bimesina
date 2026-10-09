@@ -1,0 +1,14 @@
+.insurance-boxes .box {
+    flex: 1 1 calc(50% - 20px); /* دو ستون */
+}
+.hero-content h1 {
+    font-size: 26px;
+}
+.hero-content p {
+    font-size: 18px;
+}
+.hero-btn {
+    font-size: 18px;
+}
+.blaze-pagination {
+}
