@@ -25,7 +25,8 @@ a{
 /* فونت اصلی سایت */
 @font-face {
     font-family: Estedad;
-    src: url("fonts/Estedad.ttf");
+    src: url("fonts/estedad.woff2") format("woff2"),
+         url("fonts/estedad.ttf") format("truetype");
     font-display: swap;
 }
 
@@ -43,16 +44,6 @@ html {
     scroll-behavior: smooth;
 }
 
-/* انیمیشن لرزش آیکون موبایل */
-@keyframes vibratingPhone {
-    0% { transform: rotate(0deg); }
-    20% { transform: rotate(10deg); }
-    40% { transform: rotate(-10deg); }
-    60% { transform: rotate(10deg); }
-    80% { transform: rotate(-10deg); }
-    100% { transform: rotate(0deg); }
-}
-
 /* ============================================================
    سطوح شیشه‌ای مشترک
    هر المنتی که باید شیشه‌ای باشه اسمش رو اینجا اضافه کن
@@ -62,8 +53,13 @@ html {
 .insBoxItem,
 .footerBackground,
 .backToTopBtn,
-.blaze-prev,
-.blaze-next {
+.sl-btn,
+.pageHero,
+.infoCard,
+.faqItem,
+.noteCard,
+.mapCard,
+.formCard {
     background: var(--glass-bg);
     border: var(--glass-border);
     box-shadow: var(--glass-shadow);
@@ -75,14 +71,9 @@ html {
    بدنه صفحه
    ============================================================ */
 
-/* بک‌گراند تیره + هاله‌های رنگی (شیشه به اینا نیاز داره تا بلور بشه) */
+/* بدنه: فقط رنگ تیره. هاله‌های رنگی پشتش رو .bgFx (پایین‌تر) میسازه تا با موس تکون بخورن */
 .bodyProp {
     background-color: #0a1224;
-    background-image:
-        radial-gradient(circle at 15% 15%, rgba(41,188,189,0.35), transparent 40%),
-        radial-gradient(circle at 85% 35%, rgba(90,80,230,0.30), transparent 40%),
-        radial-gradient(circle at 40% 90%, rgba(41,188,189,0.25), transparent 45%);
-    background-attachment: fixed;
     overflow-x: hidden;
     font-family: Estedad, sans-serif; /* بقیه المنت‌ها از اینجا ارث می‌برن */
 }
@@ -93,7 +84,91 @@ html {
 }
 
 /* ============================================================
-   هدر (لوگو + شبکه‌های اجتماعی)
+   پس‌زمینه زنده (هاله‌های رنگی که با موس تکون میخورن)
+   المنت‌هاش رو script.js میسازه، پس تو هیچ صفحه HTML‌ای چیزی اضافه نمیخواد.
+   بدون موس (موبایل) یا وقتی JS کار نکنه، هاله‌ها ثابت و همون ظاهر قبلی‌ان.
+   ============================================================ */
+
+/* لایه ثابت پشت کل صفحه: کلیک رو نمیگیره و پشت همه چیز قرار میگیره */
+.bgFx {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* هاله‌ی رنگی: دایره‌ای که وسطش رنگیه و به لبه‌ش محو میشه.
+   --cx و --cy رو script.js (بین -0.5 تا 0.5) میده و --k شدت جابه‌جایی هر هاله‌ست (منفی = خلاف جهت موس) */
+.bgBlob {
+    position: absolute;
+    border-radius: 50%;
+    transform: translate3d(
+        calc(-50% + var(--cx, 0) * var(--k, 0px)),
+        calc(-50% + var(--cy, 0) * var(--k, 0px)),
+        0
+    );
+}
+
+/* هاله فیروزه‌ای بالا چپ */
+.blobA {
+    left: 15%;
+    top: 15%;
+    width: 72vmax;
+    height: 72vmax;
+    --k: -220px;
+    background: radial-gradient(closest-side, rgba(41,188,189,0.35), transparent);
+}
+
+/* هاله بنفش سمت راست */
+.blobB {
+    left: 85%;
+    top: 35%;
+    width: 70vmax;
+    height: 70vmax;
+    --k: 180px;
+    background: radial-gradient(closest-side, rgba(90,80,230,0.30), transparent);
+}
+
+/* هاله فیروزه‌ای پایین */
+.blobC {
+    left: 40%;
+    top: 90%;
+    width: 62vmax;
+    height: 62vmax;
+    --k: -140px;
+    background: radial-gradient(closest-side, rgba(41,188,189,0.25), transparent);
+}
+
+/* نور نرمی که دنبال نشانگر موس میاد (تا موس حرکت نکرده دیده نمیشه) */
+.bgGlow {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: clamp(140px, 14vmax, 280px);
+    height: clamp(140px, 14vmax, 280px);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(41,188,189,0.14), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    transform: translate3d(calc(var(--gx, 0px) - 50%), calc(var(--gy, 0px) - 50%), 0);
+}
+
+/* بعد از اولین حرکت موس، نور ظاهر میشه (کلاسش رو script.js میزنه) */
+.bgFx.active .bgGlow {
+    opacity: 1;
+}
+
+/* فقط رو دستگاه‌های موس‌دار: مرورگر لایه‌ها رو از قبل آماده نگه میداره تا حرکت روان باشه */
+@media (hover: hover) and (pointer: fine) {
+    .bgBlob,
+    .bgGlow {
+        will-change: transform;
+    }
+}
+
+/* ============================================================
+   هدر (لوگو + شعار + آیکون‌های تماس)
    ============================================================ */
 
 /* ردیف هدر: لوگو یه طرف، آیکون‌ها طرف دیگه */
@@ -104,7 +179,7 @@ html {
     padding: 10px 20px;
 }
 
-/* بخش سمت چپ هدر: شعار + آیکون‌های تماس و شبکه اجتماعی */
+/* بخش سمت چپ هدر: شعار + آیکون‌های تلفن */
 .leftHeader {
     padding-right: 20px;
     padding-left: 20px;
@@ -112,17 +187,11 @@ html {
     font-size: 25px;
 }
 
-/* آیکون‌های هدر (تلفن، اینستاگرام، تلگرام) */
+/* آیکون‌های تلفن تو هدر (موبایل و تلفن دفتر) */
 .SocialHeaderIcon {
     color: white;
     vertical-align: middle;
     font-size: 30px;
-}
-
-/* آیکون موبایل که می‌لرزه (سایزش از SocialHeaderIcon میاد) */
-.VibratingPhone {
-    display: inline-block;
-    animation: vibratingPhone 1.5s infinite;
 }
 
 /* لینک لوگو: عکس + اسم کنار هم، وسط‌چین عمودی */
@@ -140,15 +209,13 @@ html {
     font-size: 25px;
 }
 
-/* هدر (لوگو + شعار + آیکون‌ها): موقع اسکرول بالای صفحه می‌مونه، شیشه‌ایه تا محتوای زیرش قاطی نشه */
+/* هدر: عادی با صفحه اسکرول میشه و میره بالا (شیشه‌اش از بلاک مشترک میاد) */
 .siteHeader {
-    position: sticky;
-    top: 0;
-    z-index: 1001; /* بالاتر از ناوبار، تا ناوبار موقع مخفی شدن بره زیرش */
     border-radius: var(--radius);
 }
 
-/* اگه include.js هدر و ناوبار رو تو یه div#header میریزه، این div نباید جعبه بسازه (وگرنه sticky کار نمیکنه) */
+/* include.js هدر و ناوبار رو تو div#header میریزه. این div نباید جعبه بسازه،
+   وگرنه sticky ناوبار فقط تا آخر همین div کار میکنه و بعدش ناوبار هم با صفحه میره */
 div#header {
     display: contents;
 }
@@ -157,24 +224,17 @@ div#header {
    ناوبار
    ============================================================ */
 
-/* ناوبار: شیشه (از بلاک مشترک)، گرد، و چسبیده بالای صفحه موقع اسکرول */
+/* ناوبار: شیشه، گرد و بعد از رفتن هدر، بالای صفحه می‌چسبه */
 #mainNav {
     position: sticky;
-    top: var(--header-h, 0px); /* درست زیر هدر میچسبه (JS ارتفاع هدر رو تو --header-h میریزه) */
+    top: 0;
     width: 100%;
     z-index: 1000;
     border-radius: var(--radius);
-    transition: background 0.22s ease, transform 0.3s ease, opacity 0.3s ease;
+    transition: background 0.22s ease;
 }
 
-/* موقع اسکرول پایین: ناوبار میره زیر هدر و محو میشه (کلاسش رو JS میزنه و با اسکرول بالا برمیداره) */
-#mainNav.navHidden {
-    transform: translateY(-100%);
-    opacity: 0;
-    pointer-events: none;
-}
-
-/* وقتی اسکرول شد: شیشه یه‌کم تیره‌تر میشه (کلاس scrolled رو JS اضافه می‌کنه) */
+/* وقتی ناوبار به بالای صفحه چسبید، شیشه یه‌کم تیره‌تر میشه (کلاس scrolled رو script.js میزنه) */
 #mainNav.scrolled {
     background: rgba(20, 38, 80, 0.55);
 }
@@ -314,7 +374,6 @@ div#header {
 .subMenu a:focus {
     font-size: 18px;
     color: var(--light-blue);
-    outline: none;
 }
 
 /* ============================================================
@@ -380,151 +439,6 @@ div#header {
     transition: stroke-dashoffset 0.15s ease-out;
 }
 
-/* ============================================================
-   اسلایدر اصلی (Hero)
-   ============================================================ */
-
-/* قاب اسلایدر بزرگ بالای صفحه */
-.hero-slider {
-    width: 75%;
-    min-height: 380px;
-    position: relative;
-    margin: 10px auto;
-}
-
-/* هر اسلاید */
-.hero-slide {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
-/* عکس اسلاید: کل قاب رو پر میکنه، یه‌کم تیره تا متن بخونه */
-.hero-slide img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: brightness(70%);
-}
-
-/* متن و دکمه روی عکس */
-.hero-content {
-    position: absolute;
-    top: 50%;
-    right: 10%;
-    transform: translateY(-50%);
-    color: white;
-    text-align: right;
-}
-
-/* تیتر بزرگ اسلاید */
-.hero-content h1 {
-    font-size: 48px;
-    margin-bottom: 20px;
-}
-
-/* زیرتیتر اسلاید */
-.hero-content p {
-    font-size: 22px;
-    margin-bottom: 30px;
-}
-
-/* دکمه روی اسلاید: شیشه‌ای فیروزه‌ای و قرصی */
-.hero-btn {
-    display: inline-block;
-    padding: 12px 24px;
-    background: rgba(41,188,189,0.3);
-    border: var(--glass-border);
-    border-radius: var(--radius-pill);
-    -webkit-backdrop-filter: var(--glass-blur);
-    backdrop-filter: var(--glass-blur);
-    color: #fff;
-    font-size: 18px;
-    transition: background 0.3s ease;
-}
-
-/* هاور دکمه: فیروزه‌ای پررنگ‌تر */
-.hero-btn:hover {
-    background: rgba(41,188,189,0.5);
-}
-
-/* فلش‌های قبلی/بعدی اسلایدر: دکمه گرد شیشه‌ای (شیشه از بلاک مشترک میاد) */
-.blaze-prev, .blaze-next {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 44px;
-    height: 44px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 26px;
-    line-height: 1;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-
-/* هاور فلش‌ها: شیشه روشن‌تر */
-.blaze-prev:hover, .blaze-next:hover {
-    background: var(--glass-bg-hover);
-}
-
-/* فلش قبلی سمت چپ */
-.blaze-prev {
-    left: 20px;
-}
-
-/* فلش بعدی سمت راست */
-.blaze-next {
-    right: 20px;
-}
-
-/* نقطه‌های پایین اسلایدر */
-.blaze-pagination {
-    position: absolute;
-    bottom: 20px;
-    width: 100%;
-    text-align: center;
-}
-
-/* خود نقطه‌ها (دکمه‌هایی که Blaze میسازه): گرد */
-.blaze-pagination button {
-    border-radius: 50%;
-}
-
-/* ============================================================
-   اسلایدر شرکت‌های همکار
-   ============================================================ */
-
-/* قاب اسلایدر شرکت‌ها: عرض محدود و وسط‌چین */
-.my-blaze {
-    max-width: 1100px;
-    margin: 0 auto;
-}
-
-/* مطمئن میشه اسلایدها کل ارتفاع رو بگیرن */
-.my-blaze .blaze-track,
-.my-blaze .blaze-track > * {
-    height: 100%;
-}
-
-/* لوگوی شرکت‌ها: همه تو یه جعبه هم‌اندازه (بدون کشیدگی) */
-.my-blaze .blaze-slide img {
-    width: 60%;
-    height: 80px;
-    object-fit: contain;
-    display: block;
-    border-radius: 8px;
-    margin: 0 auto;
-}
-
-/* کلاسی که تو HTML روی اسلایدهای شرکت‌ها گذاشتی: لوگوها رو سفید خالص میکنه */
-.sliderimg {
-    filter: brightness(0) invert(1);
-}
 
 /* ============================================================
    کارت‌های انواع بیمه
@@ -585,4 +499,862 @@ div#header {
 /* خط جداکننده بالای متن کپی‌رایت */
 .lightFooterLine {
     border-color: rgba(255,255,255,0.2);
+}
+
+/* لینک آیکون‌های شبکه‌های مجازی فوتر (هم Font Awesome هم SVG): با هاور کمی میره بالا */
+.socialLink {
+    display: inline-flex;
+    align-items: center;
+    transition: transform 0.25s ease;
+}
+
+.socialLink:hover {
+    transform: translateY(-3px);
+}
+
+/* آیکون‌های SVG فوتر (بله، ایتا، لینکدین): هم‌اندازه آیکون‌های Font Awesome (fs-4) و سفید خالص */
+.socialImg {
+    width: 1.5rem;
+    height: 1.5rem;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+}
+/* ============================================================
+   اسلایدر خودمون (بدون کتابخونه) ــ پایه مشترک برای هر دو اسلایدر
+   منطقش تو script.js هست؛ اینجا فقط ظاهرش
+   ============================================================ */
+
+/* قاب بیرونی اسلایدر (مرجع موقعیت فلش‌ها و نقطه‌ها). ارتفاعش رو هر اسلایدر خودش مشخص میکنه */
+.sl {
+    position: relative;
+}
+
+/* فوکوس کیبورد روی اسلایدر */
+.sl:focus-visible {
+    outline: 2px solid var(--light-blue);
+    outline-offset: 4px;
+    border-radius: var(--radius);
+}
+
+/* پنجره‌ای که اسلایدها توش میلغزن: کل قاب رو میگیره و بیرون‌زدگی‌ها بریده میشن */
+.sl-viewport {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: var(--radius);
+    touch-action: pan-y;          /* اسکرول عمودی صفحه سر جاش، کشیدن افقی مال اسلایدر */
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: grab;
+}
+
+/* موقع کشیدن با موس */
+.sl-viewport.is-dragging {
+    cursor: grabbing;
+}
+
+/* هر اسلاید: روی هم چیده میشن و JS با transform جابه‌جاشون میکنه (از سمت شروعِ جهت صفحه، یعنی راست تو RTL) */
+.sl-slide {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    inset-inline-start: 0;
+    width: 100%;
+    will-change: transform;
+}
+
+/* قبل از اینکه JS راه بیفته فقط اولین اسلاید دیده بشه (بدون پرش) */
+.sl:not(.is-ready) .sl-slide:not(:first-child) {
+    opacity: 0;
+}
+
+/* عکس‌ها نباید خودشون درگ بشن */
+.sl-slide img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+    user-select: none;
+}
+
+/* فلش‌های قبلی/بعدی: دکمه گرد شیشه‌ای (شیشه از بلاک مشترک میاد) */
+.sl-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+/* هاور فلش‌ها: شیشه روشن‌تر */
+.sl-btn:hover {
+    background: var(--glass-bg-hover);
+}
+
+/* فلش قبلی: ابتدای خط (راست تو RTL) */
+.sl-prev {
+    inset-inline-start: 20px;
+}
+
+/* فلش بعدی: انتهای خط (چپ تو RTL) */
+.sl-next {
+    inset-inline-end: 20px;
+}
+
+/* ردیف نقطه‌های پایین اسلایدر */
+.sl-dots {
+    position: absolute;
+    bottom: 16px;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    pointer-events: none;
+}
+
+/* هر نقطه: گرد و کم‌رنگ */
+.sl-dot {
+    width: 10px;
+    height: 10px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    cursor: pointer;
+    pointer-events: auto;
+    transition: background 0.3s, width 0.3s;
+}
+
+/* نقطه فعال: سفید و کشیده (قرصی) */
+.sl-dot.is-active {
+    width: 26px;
+    border-radius: var(--radius-pill);
+    background: #fff;
+}
+
+/* ============================================================
+   اسلایدر اصلی (Hero)
+   ============================================================ */
+
+/* قاب اسلایدر بزرگ: نسبت ثابت ۱۶ به ۶، پس همه عکس‌ها دقیقاً هم‌اندازه‌ان (عدد نسبت رو عوض کنی ارتفاع عوض میشه) */
+.hero-slider {
+    width: 75%;
+    aspect-ratio: 16 / 6;
+    min-height: 260px;
+    margin: 10px auto;
+}
+
+/* عکس اسلاید: کل قاب رو پر میکنه و خودکار برش میخوره (هر اندازه‌ای باشه)، یه‌کم تیره تا متن بخونه */
+.hero-slide img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center; /* اگه تو یه عکس سوژه بالاتره بنویس: object-position: center top */
+    filter: brightness(70%);
+}
+
+/* متن و دکمه روی عکس */
+.hero-content {
+    position: absolute;
+    top: 50%;
+    right: 10%;
+    transform: translateY(-50%);
+    color: white;
+    text-align: right;
+}
+
+/* تیتر بزرگ اسلاید (با اندازه صفحه کوچیک و بزرگ میشه) */
+.hero-content h1 {
+    font-size: clamp(22px, 4.2vw, 48px);
+    margin-bottom: 20px;
+}
+
+/* زیرتیتر اسلاید */
+.hero-content p {
+    font-size: clamp(14px, 2.2vw, 22px);
+    margin-bottom: 30px;
+}
+
+/* دکمه روی اسلاید: شیشه‌ای فیروزه‌ای و قرصی */
+.hero-btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background: rgba(41,188,189,0.3);
+    border: var(--glass-border);
+    border-radius: var(--radius-pill);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    color: #fff;
+    font-size: 18px;
+    transition: background 0.3s ease;
+}
+
+/* هاور دکمه: فیروزه‌ای پررنگ‌تر */
+.hero-btn:hover {
+    background: rgba(41,188,189,0.5);
+}
+
+/* موبایل و تبلت (کمتر از ۷۶۸ پیکسل): اسلایدر بلندتر و بزرگ‌تر میشه تا متن توش جا بشه */
+@media (max-width: 768px) {
+    .hero-slider {
+        width: 94%;
+        aspect-ratio: 4 / 3;
+    }
+
+    .sl-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+    }
+}
+
+/* ============================================================
+   اسلایدر شرکت‌های همکار
+   ============================================================ */
+
+/* قاب اسلایدر شرکت‌ها: عرض محدود، وسط‌چین، ارتفاع ثابت */
+.orgSlider {
+    width: min(calc(100% - 32px), 1100px);
+    height: 110px;
+    margin: 0 auto;
+}
+
+/* هر اسلاید شرکت: لوگو وسط جعبه */
+.orgSlider .sl-slide {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* لوگوی شرکت‌ها: همه تو یه جعبه هم‌اندازه و بدون کشیدگی (برش نمیخورن، کامل دیده میشن) */
+.orgSlider .sl-slide img {
+    width: 60%;
+    height: 80px;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+/* کلاسی که تو HTML روی اسلایدهای شرکت‌ها هست: لوگوها رو سفید خالص میکنه */
+.sliderimg {
+    filter: brightness(0) invert(1);
+}
+
+
+/* ============================================================
+   تنظیمات دستی: هدر و ناوبار بدون سایه، و گوشه‌های چسبیده‌شون به هم
+   ============================================================ */
+
+/* هدر: گوشه و خط پایینش صاف تا به ناوبار بچسبه */
+.siteHeader {
+    border-bottom: 0 !important;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+/* ناوبار: گوشه و خط بالاش صاف تا به هدر بچسبه */
+#mainNav {
+    border-top: 0 !important;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    margin-top: 0;
+}
+
+/* هدر و ناوبار بدون سایه */
+.siteHeader,
+#mainNav {
+    box-shadow: none !important;
+}
+
+/* ============================================================
+   صفحه‌های داخلی (خودرو، مسئولیت، آتش‌سوزی و ...)
+   همه‌شون از همین کلاس‌ها استفاده می‌کنن، پس برای هر صفحه جدید فقط HTML می‌نویسی
+   ============================================================ */
+
+/* قاب اصلی محتوای صفحه: فاصله از ناوبار و فوتر */
+.pageWrap {
+    padding-top: 24px;
+    padding-bottom: 8px;
+}
+
+/* مسیر صفحه (خانه › خودرو › شخص ثالث) */
+.breadcrumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+    color: rgba(255,255,255,0.7);
+    font-size: 14px;
+}
+
+/* لینک‌های مسیر صفحه */
+.breadcrumbs a {
+    color: var(--light-blue);
+}
+
+/* کارت بزرگ بالای صفحه: عنوان و توضیح کوتاه (شیشه‌اش از بلاک مشترک میاد) */
+.pageHero {
+    padding: 40px 28px;
+    border-radius: var(--radius);
+    text-align: center;
+    color: white;
+}
+
+/* عنوان اصلی صفحه (و عنوان کارت پایین صفحه) */
+.pageHero h1,
+.pageHero h2 {
+    font-size: clamp(26px, 4vw, 40px);
+    margin-bottom: 14px;
+}
+
+/* توضیح کوتاه زیر عنوان */
+.pageLead {
+    max-width: 760px;
+    margin: 0 auto 24px;
+    font-size: clamp(15px, 2vw, 18px);
+    line-height: 2;
+    color: rgba(255,255,255,0.85);
+}
+
+/* هر بخش صفحه: فاصله از بخش قبلی */
+.pageSection {
+    margin-top: 40px;
+    color: white;
+}
+
+/* عنوان هر بخش با خط فیروزه‌ای کنارش */
+.pageSection > h2 {
+    margin-bottom: 20px;
+    padding-right: 14px;
+    border-right: 4px solid var(--light-blue);
+    font-size: clamp(20px, 3vw, 26px);
+}
+
+/* متن‌های توضیحی داخل بخش‌ها */
+.pageSection p {
+    line-height: 2;
+    color: rgba(255,255,255,0.85);
+}
+
+/* کارت اطلاعات (پوشش‌ها، مراحل و ...): شیشه‌ای، هم‌قد داخل ردیف */
+.infoCard {
+    height: 100%;
+    padding: 22px;
+    border-radius: var(--radius);
+    color: white;
+    transition: transform 0.3s ease, background 0.3s ease;
+}
+
+/* هاور کارت: کمی بالا میاد و شیشه روشن‌تر میشه */
+.infoCard:hover {
+    transform: translateY(-4px);
+    background: var(--glass-bg-hover);
+}
+
+/* آیکون بالای کارت */
+.infoCard > i {
+    margin-bottom: 12px;
+    font-size: 30px;
+    color: var(--light-blue);
+}
+
+/* عنوان کارت */
+.infoCard h3 {
+    margin-bottom: 8px;
+    font-size: 19px;
+}
+
+/* متن کارت */
+.infoCard p {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.9;
+}
+
+/* شماره مرحله (دایره‌ی شیشه‌ای فیروزه‌ای) */
+.stepNum {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    margin-bottom: 12px;
+    border-radius: 50%;
+    background: rgba(41,188,189,0.3);
+    border: var(--glass-border);
+    font-weight: bold;
+}
+
+/* لیست تیک‌دار (مدارک لازم، موارد بدون پوشش) */
+.checkList {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* هر آیتم لیست: آیکون کنار متن */
+.checkList li {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+    line-height: 1.9;
+}
+
+/* آیکون آیتم لیست */
+.checkList i {
+    margin-top: 6px;
+    color: var(--light-blue);
+}
+
+/* کارت تذکر (نکته‌های مهم): شیشه با لبه فیروزه‌ای */
+.noteCard {
+    margin-top: 16px;
+    padding: 18px 22px;
+    border-radius: var(--radius);
+    border-right: 4px solid var(--light-blue);
+    color: rgba(255,255,255,0.9);
+    line-height: 2;
+}
+
+/* هر سؤال متداول (باز و بسته میشه، بدون JS) */
+.faqItem {
+    margin-bottom: 12px;
+    border-radius: var(--radius);
+    color: white;
+}
+
+/* تیتر سؤال */
+.faqItem summary {
+    padding: 16px 20px;
+    cursor: pointer;
+    font-size: 17px;
+}
+
+/* جواب سؤال */
+.faqItem p {
+    margin: 0;
+    padding: 0 20px 18px;
+    line-height: 2;
+    color: rgba(255,255,255,0.85);
+}
+
+/* دکمه‌های پایین صفحه کنار هم */
+.pageActions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+}
+
+/* دکمه‌های داخل .pageActions: آیکون و متن هم‌تراز و کنار هم */
+.pageActions .hero-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    line-height: 1.6;
+    cursor: pointer;
+}
+
+/* آیکون‌های تصویری (بله، ایتا، لینکدین) داخل دکمه‌ها، هم‌اندازه آیکون‌های فونت */
+.pageActions .hero-btn .socialImg {
+    width: 1.15rem;
+    height: 1.15rem;
+}
+
+/* لینک‌های داخل کارت‌های اطلاعات (شماره تماس، آدرس و ...) */
+.infoCard a {
+    color: var(--light-blue);
+    transition: color 0.3s ease;
+}
+
+.infoCard a:hover,
+.infoCard a:focus {
+    color: #fff;
+}
+
+/* متن راهنمای کوچک پایین کارت */
+.cardHint {
+    display: block;
+    margin-top: 8px;
+    font-size: 13px;
+    line-height: 1.9;
+    color: rgba(255,255,255,0.65);
+}
+
+/* شماره‌ها و متن‌های لاتین: از چپ به راست خوانده بشن */
+.ltrText {
+    display: inline-block;
+    direction: ltr;
+    unicode-bidi: isolate;
+}
+
+/* قاب شیشه‌ای نقشه (شیشه‌اش از بلاک مشترک میاد) */
+.mapCard {
+    padding: 12px;
+    border-radius: var(--radius);
+    color: white;
+}
+
+/* نقشه: عرض کامل و ارتفاع متناسب با اندازه صفحه */
+.mapCard iframe {
+    display: block;
+    width: 100%;
+    height: clamp(280px, 45vw, 460px);
+    border: 0;
+    border-radius: calc(var(--radius) - 6px);
+}
+
+/* دکمه‌های زیر نقشه با فاصله از قاب */
+.mapCard + .pageActions {
+    margin-top: 16px;
+}
+
+/* کارت فرم تماس (شیشه‌اش از بلاک مشترک میاد) */
+.formCard {
+    padding: 26px;
+    border-radius: var(--radius);
+    color: white;
+}
+
+/* برچسب فیلدهای فرم */
+.contactForm .form-label {
+    margin-bottom: 6px;
+    font-size: 15px;
+    color: rgba(255,255,255,0.85);
+}
+
+/* فیلدهای فرم: شیشه‌ای تیره به‌جای سفید پیش‌فرض بوت‌استرپ */
+.contactForm .form-control,
+.contactForm .form-select {
+    padding: 11px 14px;
+    background-color: rgba(255,255,255,0.06);
+    border: var(--glass-border);
+    border-radius: 12px;
+    color: #fff;
+    font-size: 15px;
+    box-shadow: none;
+}
+
+/* متن راهنمای داخل فیلدها */
+.contactForm .form-control::placeholder {
+    color: rgba(255,255,255,0.4);
+}
+
+/* فوکوس فیلد: حاشیه فیروزه‌ای و هاله ملایم */
+.contactForm .form-control:focus,
+.contactForm .form-select:focus {
+    background-color: rgba(255,255,255,0.1);
+    border-color: var(--light-blue);
+    color: #fff;
+    box-shadow: 0 0 0 3px rgba(41,188,189,0.2);
+}
+
+/* لیست بازشوی «موضوع»: پس‌زمینه تیره برای گزینه‌ها */
+.contactForm .form-select option {
+    background-color: #0f1c3c;
+    color: #fff;
+}
+
+/* فلش سفید لیست بازشو + فاصله از متن (سمت چپ، چون متن راست‌چین است) */
+.contactForm .form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: left 14px center;
+    background-size: 14px 10px;
+    padding-left: 38px;
+}
+
+/* کادر متن پیام: قابل تغییر ارتفاع، ولی نه کوچک‌تر از ۱۲۰ پیکسل */
+.contactForm textarea.form-control {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* توضیح پایین فرم (نحوه ارسال پیام) */
+.formNote {
+    margin: 14px 0 0;
+    font-size: 13px;
+    line-height: 1.9;
+    color: rgba(255,255,255,0.6);
+}
+
+/* گزینه‌های پشتیبان ارسال پیام (وقتی واتساپ باز نشود یا JS خاموش باشد) */
+.formFallback {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.formFallback[hidden] {
+    display: none;
+}
+
+.formFallbackActions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.formFallbackActions .hero-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 16px;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.formFallbackActions .socialImg {
+    width: 1.15rem;
+    height: 1.15rem;
+}
+
+
+/* ============================================================
+   اصلاحات منوی موبایل، هیرو، دسترس‌پذیری و پرش به محتوا
+   (این بلوک آخر فایل است تا تنظیمات قبلی را بازنویسی کند)
+   ============================================================ */
+
+/* دکمه منو فقط در موبایل دیده می‌شود */
+.navToggle {
+    display: none;
+}
+
+/* فوکوس واضح برای استفاده با کیبورد */
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--light-blue);
+    outline-offset: 3px;
+}
+
+/* باز شدن زیرمنو با کیبورد (Tab) در دسکتاپ */
+.navItem:focus-within > .subMenu {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    visibility: visible;
+}
+
+/* تیتر اسلایدهایی که h2 شده‌اند، هم‌اندازه تیتر اول */
+.hero-content h2 {
+    font-size: clamp(22px, 4.2vw, 48px);
+    margin-bottom: 20px;
+}
+
+/* لینک پرش به محتوای اصلی (برای صفحه‌خوان و کیبورد) */
+.skipLink {
+    position: fixed;
+    top: -90px;
+    right: 16px;
+    z-index: 3000;
+    padding: 10px 18px;
+    border-radius: var(--radius);
+    background: var(--light-blue);
+    color: #06202a;
+    font-weight: 700;
+    transition: top 0.2s ease;
+}
+
+.skipLink:focus {
+    top: 12px;
+}
+
+@media (max-width: 768px) {
+    /* هدر موبایل: شعار پنهان، آیکون و لوگو جمع‌وجور */
+    .headerTagline {
+        display: none;
+    }
+
+    .topHeader {
+        padding: 8px 12px;
+    }
+
+    .leftHeader {
+        padding: 0 8px;
+        font-size: 15px;
+    }
+
+    .SocialHeaderIcon {
+        font-size: 22px;
+    }
+
+    .logo {
+        padding-right: 6px;
+        gap: 6px;
+    }
+
+    .logo img {
+        height: 28px;
+    }
+
+    .title {
+        font-size: 20px;
+    }
+
+    /* ناوبار: دکمه همبرگری و منوی کشویی */
+    #mainNav {
+        padding: 6px 10px;
+    }
+
+    .navToggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 10px 14px;
+        border: 0;
+        border-radius: var(--radius);
+        background: transparent;
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    #mainNav > .navItems {
+        display: none;
+    }
+
+    #mainNav.menu-open > .navItems {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        padding: 4px 0 10px;
+    }
+
+    #mainNav > .navItems > .navItem {
+        display: block;
+        width: 100%;
+    }
+
+    #mainNav > .navItems > .navItem > .navLink {
+        padding: 11px 12px;
+        border-radius: 10px;
+    }
+
+    #mainNav > .navItems > .navItem > .navLink:hover {
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    #mainNav .menuSeparator {
+        display: none;
+    }
+
+    #mainNav .lastItem {
+        float: none;
+        margin-top: 8px;
+        text-align: center;
+    }
+
+    #mainNav .lastItem > .navLink {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    /* زیرمنو در موبایل: داخل منو باز می‌شود، نه شناور */
+    #mainNav .subMenu {
+        position: static;
+        display: none;
+        min-width: 0;
+        padding: 2px 0 6px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        pointer-events: auto;
+    }
+
+    #mainNav .navItem.sub-open > .subMenu {
+        display: flex;
+    }
+
+    #mainNav .navItem:hover > .subMenu {
+        display: none;
+    }
+
+    #mainNav .navItem.sub-open:hover > .subMenu {
+        display: flex;
+    }
+
+    #mainNav .subMenu a {
+        padding: 9px 26px;
+        font-size: 14px;
+    }
+
+    #mainNav .subMenu a:hover,
+    #mainNav .subMenu a:focus {
+        font-size: 15px;
+    }
+
+    /* هیرو موبایل: متن خواناتر و دکمه داخل کادر */
+    .hero-slide img {
+        filter: brightness(55%);
+    }
+
+    .hero-content {
+        right: 5%;
+        left: 5%;
+        text-align: center;
+    }
+
+    .hero-content h1,
+    .hero-content h2 {
+        font-size: clamp(20px, 6vw, 30px);
+        margin-bottom: 12px;
+    }
+
+    .hero-content p {
+        font-size: 15px;
+        margin-bottom: 16px;
+    }
+
+    .hero-content .hero-btn {
+        max-width: 100%;
+        padding: 10px 18px;
+        font-size: 15px;
+        white-space: normal;
+    }
+}
+
+/* ============================================================
+   تاریخ/منبع مقاله + سازگاری <picture>
+   ============================================================ */
+.articleMeta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px 8px;
+    max-width: 760px;
+    margin: -10px auto 22px;
+    font-size: 13px;
+    line-height: 1.9;
+    color: rgba(255, 255, 255, 0.72);
+}
+
+.articleMeta time {
+    color: var(--light-blue);
+}
+
+/* <picture> فقط پوشش است؛ چیدمان تصویر دقیقاً مثل قبل می‌ماند */
+picture {
+    display: contents;
 }

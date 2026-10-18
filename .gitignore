@@ -1,1 +1,10 @@
 node_modules/
+
+# فایل‌های سیستمی و ابزارها
+.DS_Store
+Thumbs.db
+*.log
+.vs/
+.idea/
+.stfolder/
+.stignore
