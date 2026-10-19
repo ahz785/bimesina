@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import path from "node:path";
 import {
   BASE,
   SITE_NAME,
@@ -31,21 +32,36 @@ const HOURS = [
 
 /* تاریخ انتشار/منبع مقالات مجله (از فهرست مجله) */
 const ARTICLES = {
-  "magazine/third-party-renewal-notice.html": { type: "اطلاعیه", fa: "۲۶ مهر ۱۴۰۵", iso: "2026-10-18" },
-  "magazine/fire-insurance-checklist.html": { type: "اطلاعیه", fa: "۲۶ مهر ۱۴۰۵", iso: "2026-10-18" },
-  "magazine/claim-documents.html": { type: "اطلاعیه", fa: "۲۶ مهر ۱۴۰۵", iso: "2026-10-18" },
-  "magazine/student-accident-insurance.html": { type: "خبر", fa: "۱ شهریور ۱۴۰۵", iso: "2026-08-23", source: "خبرگزاری مهر" },
-  "magazine/taxi-drivers-insurance.html": { type: "خبر", fa: "۲۵ شهریور ۱۴۰۵", iso: "2026-09-16", source: "خبرگزاری مهر" },
-  "magazine/artists-supplementary-insurance.html": { type: "خبر", fa: "۱۶ شهریور ۱۴۰۵", iso: "2026-09-07", source: "خبرگزاری مهر" },
-  "magazine/carpet-weavers-social-insurance.html": { type: "خبر", fa: "۲۱ شهریور ۱۴۰۵", iso: "2026-09-12", source: "خبرگزاری مهر" },
+  "pages/magazine/third-party-renewal-notice.html": { type: "اطلاعیه", fa: "۲۶ مهر ۱۴۰۵", iso: "2026-10-18" },
+  "pages/magazine/fire-insurance-checklist.html": { type: "اطلاعیه", fa: "۲۶ مهر ۱۴۰۵", iso: "2026-10-18" },
+  "pages/magazine/claim-documents.html": { type: "اطلاعیه", fa: "۲۶ مهر ۱۴۰۵", iso: "2026-10-18" },
+  "pages/magazine/student-accident-insurance.html": { type: "خبر", fa: "۱ شهریور ۱۴۰۵", iso: "2026-08-23", source: "خبرگزاری مهر" },
+  "pages/magazine/taxi-drivers-insurance.html": { type: "خبر", fa: "۲۵ شهریور ۱۴۰۵", iso: "2026-09-16", source: "خبرگزاری مهر" },
+  "pages/magazine/artists-supplementary-insurance.html": { type: "خبر", fa: "۱۶ شهریور ۱۴۰۵", iso: "2026-09-07", source: "خبرگزاری مهر" },
+  "pages/magazine/carpet-weavers-social-insurance.html": { type: "خبر", fa: "۲۱ شهریور ۱۴۰۵", iso: "2026-09-12", source: "خبرگزاری مهر" },
 };
 
 const skip = new Set(["header.html", "footer.html", "404.html"]);
-const pages = fs
-  .readdirSync(".")
-  .filter((f) => f.endsWith(".html") && !f.startsWith("_") && !skip.has(f));
-pages.push(
-  ...fs.readdirSync("magazine").filter((f) => f.endsWith(".html") && !f.startsWith("_")).map((f) => `magazine/${f}`)
+const skipDirs = new Set([".git", ".vs", ".idea", ".stfolder", "assets", "css", "fonts", "images", "js", "tools"]);
+
+/* همهٔ صفحات HTML سایت را بازگشتی پیدا می‌کند (ریشه + پوشهٔ pages) */
+function collectPages(dir = ".") {
+  const found = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (entry.isDirectory()) {
+      if (skipDirs.has(entry.name)) continue;
+      found.push(...collectPages(path.join(dir, entry.name)));
+      continue;
+    }
+    if (!entry.name.endsWith(".html") || entry.name.startsWith("_")) continue;
+    const rel = path.relative(".", path.join(dir, entry.name)).split(path.sep).join("/");
+    if (!skip.has(rel)) found.push(rel);
+  }
+  return found;
+}
+
+const pages = collectPages().sort(
+  (a, b) => a.split("/").length - b.split("/").length || a.localeCompare(b)
 );
 
 const plain = (s = "") =>
@@ -193,11 +209,11 @@ const REPORT = [];
 for (const rel of pages) {
   let html = fs.readFileSync(rel, "utf8");
   const isIndex = rel === "index.html";
-  const isMagIndex = rel === "magazine/index.html";
+  const isMagIndex = rel === "pages/magazine/index.html";
   const isOurInfo = rel === "ourinfo.html";
   const article = ARTICLES[rel];
-  const url = isIndex ? BASE : isMagIndex ? `${BASE}magazine/` : `${BASE}${rel}`;
-  const prefix = rel.startsWith("magazine/") ? "../" : "";
+  const url = isIndex ? BASE : isMagIndex ? `${BASE}pages/magazine/` : `${BASE}${rel}`;
+  const prefix = "../".repeat(rel.split("/").length - 1);
 
   // تگ‌های مشترک (فونت، فاویکون، CSS، JS و viewport) فقط از site.config.mjs می‌آیند
   html = syncCommonHead(html, prefix);
@@ -293,7 +309,7 @@ for (const rel of pages) {
       },
       image: { "@type": "ImageObject", url: OG_IMAGE, width: OG_WIDTH, height: OG_HEIGHT },
       mainEntityOfPage: { "@type": "WebPage", "@id": url },
-      isPartOf: { "@type": "Blog", name: "مجله بیمه سینا", url: `${BASE}magazine/` },
+      isPartOf: { "@type": "Blog", name: "مجله بیمه سینا", url: `${BASE}pages/magazine/` },
       articleSection: "مجله بیمه",
       inLanguage: "fa-IR",
     });
@@ -314,7 +330,7 @@ for (const rel of pages) {
   if (isMagIndex) {
     graph.push({
       "@type": "ItemList",
-      "@id": `${BASE}magazine/#articles`,
+      "@id": `${BASE}pages/magazine/#articles`,
       name: "مقالات مجله بیمه سینا",
       numberOfItems: Object.keys(ARTICLES).length,
       itemListElement: Object.keys(ARTICLES).map((key, i) => ({
@@ -339,11 +355,12 @@ fs.writeFileSync("404.html", notFound, "utf8");
 
 /* --- sitemap.xml --- */
 const sitemapUrls = pages.map((rel) => {
-  const url = rel === "index.html" ? BASE : rel === "magazine/index.html" ? `${BASE}magazine/` : `${BASE}${rel}`;
+  const isMagIndex = rel === "pages/magazine/index.html";
+  const url = rel === "index.html" ? BASE : isMagIndex ? `${BASE}pages/magazine/` : `${BASE}${rel}`;
   const article = ARTICLES[rel];
   const lastmod = article ? article.iso : TODAY;
-  const priority = rel === "index.html" ? "1.0" : rel === "magazine/index.html" ? "0.9" : article ? "0.7" : "0.8";
-  const changefreq = rel === "index.html" || rel === "magazine/index.html" ? "weekly" : "monthly";
+  const priority = rel === "index.html" ? "1.0" : isMagIndex ? "0.9" : article ? "0.7" : "0.8";
+  const changefreq = rel === "index.html" || isMagIndex ? "weekly" : "monthly";
   return `  <url>\n    <loc>${url}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
 });
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<!-- آدرس پایه: ${BASE} -->\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapUrls.join(

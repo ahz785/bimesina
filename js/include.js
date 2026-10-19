@@ -1,7 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
     const headerEl = document.getElementById("header");
     const footerEl = document.getElementById("footer");
-    // در صفحات زیرپوشه‌ای (مثل magazine) با data-root="../" مشخص می‌شود
+    // در صفحات زیرپوشه‌ای، data-root مقدار بازگشت به ریشهٔ سایت است
+    // (مثلاً برای pages/fire/x.html می‌شود "../../")؛
+    // لینک‌های نسبی داخل header.html و footer.html همیشه نسبت به ریشهٔ سایت نوشته می‌شوند.
     const root = (headerEl && headerEl.dataset.root) || (footerEl && footerEl.dataset.root) || "";
 
     // مسیرهای نسبی داخل هدر/فوتر تزریق‌شده را نسبت به ریشهٔ سایت اصلاح می‌کند
