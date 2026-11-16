@@ -1,13 +1,32 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // لود هدر
-    fetch("/partials/header.html")
-        .then(res => res.text())
-        .then(html => document.getElementById("header").innerHTML = html)
-        .catch(err => console.error("خطا در بارگذاری header:", err));
+    const headerEl = document.getElementById("header");
+    const footerEl = document.getElementById("footer");
+    // در صفحات زیرپوشه‌ای (مثل magazine) با data-root="../" مشخص می‌شود
+    const root = (headerEl && headerEl.dataset.root) || (footerEl && footerEl.dataset.root) || "";
 
-    // لود فوتر
-    fetch("/partials/footer.html")
-        .then(res => res.text())
-        .then(html => document.getElementById("footer").innerHTML = html)
-        .catch(err => console.error("خطا در بارگذاری footer:", err));
+    // مسیرهای نسبی داخل هدر/فوتر تزریق‌شده را نسبت به ریشهٔ سایت اصلاح می‌کند
+    const fixPaths = (container) => {
+        if (!root) return;
+        container.querySelectorAll("[href], [src]").forEach((el) => {
+            ["href", "src"].forEach((attr) => {
+                const value = el.getAttribute(attr);
+                if (!value || /^(?:[a-z][a-z0-9+.-]*:|\/\/|\/|#)/i.test(value)) return;
+                el.setAttribute(attr, root + value);
+            });
+        });
+    };
+
+    const loadPart = (target, file) => {
+        if (!target) return;
+        fetch(root + file)
+            .then((res) => res.text())
+            .then((html) => {
+                target.innerHTML = html;
+                fixPaths(target);
+            })
+            .catch((err) => console.error("خطا در بارگذاری " + file + ":", err));
+    };
+
+    loadPart(headerEl, "header.html");
+    loadPart(footerEl, "footer.html");
 });
